@@ -22,7 +22,7 @@ class Skill(pygame.sprite.Sprite):
         self.height=height
         self.color=WHITE
 
-        self.image = pygame.image.load("skill1.png").convert_alpha()
+        self.image = pygame.image.load("sprites/skill1.png").convert_alpha()
         self.orig_img = self.image
         self.rect = self.image.get_rect()
 
