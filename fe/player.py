@@ -1,63 +1,46 @@
 import pygame
 import math
+from skill import Skill
 
-WHITE = (255, 255, 255)
- 
 class Player(pygame.sprite.Sprite):
- 
-    def __init__(self, color, width, height, speed):
+    def __init__(self):
         super().__init__()
- 
-        self.image = pygame.Surface([width, height])
-        self.image.fill(WHITE)
-        self.image.set_colorkey(WHITE)
- 
-        self.width=width
-        self.height=height
-        self.color=color
-        self.speed=speed
-        self.angle=0
- 
-       # pygame.draw.rect(self.image, self.color, [0, 0, self.width, self.height])
- 
-        self.image = pygame.image.load("sprites/hero1.png").convert_alpha()
+        self.size = [20, 20]
+        self.image = pygame.Surface(self.size)
+        self.image = pygame.image.load("hero1.png").convert_alpha()
         self.orig_img = self.image
-
         self.rect = self.image.get_rect()
- 
-    def moveRight(self, pixels):
-        self.rect.x += pixels
- 
-    def moveLeft(self, pixels):
-        self.rect.x -= pixels
- 
-    def moveForward(self, pixels):
-        self.rect.y -= pixels
- 
-    def moveBackward(self, pixels):
-        self.rect.y += pixels
+        self.center = [self.rect.x + self.size[0]/2, self.rect.y + self.size[1]/2]
 
-    def rotate(self, vector):
-        self.angle = math.atan2(self.rect.x-vector.x,self.rect.y-vector.y)*180/math.pi
-        self.image = pygame.transform.rotozoom(self.orig_img, self.angle, 1)
-        self.rect = self.image.get_rect(center=self.rect.center)
+        self.life = 100
+        self.speed = 2
+        self.cooldown_timer = 0
+        self.cooldown = 0.2
+        self.damage = 2
+        self.skillspeed = 5
 
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
-            self.moveLeft(2)
+            self.rect.move_ip(-self.speed, 0)
         if keys[pygame.K_d]:
-            self.moveRight(2)
+            self.rect.move_ip(self.speed, 0)
         if keys[pygame.K_w]:
-            self.moveForward(2);
+            self.rect.move_ip(0, -self.speed)
         if keys[pygame.K_s]:
-            self.moveBackward(2);
-            
-        mouseX, mouseY = pygame.mouse.get_pos()
-        vetMouse=pygame.math.Vector2(mouseX,mouseY)
-        self.rotate(vetMouse)
+            self.rect.move_ip(0, self.speed)
 
-    def handleEvent(self, event):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        vector=pygame.math.Vector2(mouse_x,mouse_y) 
+        self.dir = math.atan2(self.rect.x-vector.x,self.rect.y-vector.y)*180/math.pi
+        self.image = pygame.transform.rotozoom(self.orig_img, self.dir, 1)
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.center = [self.rect.x + self.size[0]/2, self.rect.y + self.size[1]/2]
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            print("fire")
+    def cast(self):
+    	if(self.cooldown_timer >= self.cooldown):
+    		self.cooldown_timer = 0
+    		skill = Skill(self)
+    		return skill
+    	else:
+    		return False
